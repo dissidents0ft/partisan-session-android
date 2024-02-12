@@ -14,7 +14,6 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.whenCreated
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +43,7 @@ import org.thoughtcrime.securesms.util.ScanQRCodeWrapperFragmentDelegate
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.setUpActionBarSessionLogo
 import partisan_plugin.data.repositories.PreferencesRepository
-import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.usecases.accountsDatabase.EncryptItemUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.GetDecryptedAccountUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.GetPrimaryAccountUseCases
@@ -93,7 +92,7 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
             AppStartAction.NORMAL_START -> {
             }
             AppStartAction.SETUP_DATABASE -> {
-                PreferencesRepository.setAppStartAction(applicationContext,AppStartAction.NORMAL_START)
+                PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START)
             }
             AppStartAction.START_ENTER_PRIMARY_PHRASE ->  {
                 coroutineScope.launch {
@@ -106,7 +105,7 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
                 coroutineScope.launch {
                     val decrypted = getDecryptedAccountUseCase()
                     encryptItemUseCases()
-                    PreferencesRepository.setAppStartAction(applicationContext,AppStartAction.NORMAL_START)
+                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START)
                         runOnUiThread{continueWithMnemonic(decrypted.passPhrase)}
                 }
             }

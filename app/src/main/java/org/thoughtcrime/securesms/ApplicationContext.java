@@ -15,7 +15,6 @@
  */
 package org.thoughtcrime.securesms;
 
-import static androidx.core.content.ContentProviderCompat.requireContext;
 import static nl.komponents.kovenant.android.KovenantAndroid.startKovenant;
 import static nl.komponents.kovenant.android.KovenantAndroid.stopKovenant;
 
@@ -113,8 +112,6 @@ import kotlinx.coroutines.Job;
 import network.loki.messenger.BuildConfig;
 import network.loki.messenger.libsession_util.ConfigBase;
 import network.loki.messenger.libsession_util.UserProfile;
-import partisan_plugin.data.repositories.PreferencesRepository;
-import partisan_plugin.domain.AppStartAction;
 
 /**
  * Will be called once when the TextSecure process is created.

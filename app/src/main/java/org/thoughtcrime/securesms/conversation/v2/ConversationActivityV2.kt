@@ -179,7 +179,7 @@ import org.thoughtcrime.securesms.util.isScrolledToBottom
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.toPx
 import partisan_plugin.data.repositories.PreferencesRepository
-import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.usecases.accountsDatabase.DecryptItemUseCase
 import java.lang.ref.WeakReference
 import java.util.Locale

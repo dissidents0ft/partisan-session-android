@@ -10,7 +10,7 @@ import org.thoughtcrime.securesms.service.KeyCachingService
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.setUpActionBarSessionLogo
 import partisan_plugin.data.repositories.PreferencesRepository
-import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.presentation.activities.PartisanDatabaseActivity
 
 class LandingActivity : BaseActionBarActivity() {

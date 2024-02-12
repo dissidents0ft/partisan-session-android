@@ -2,8 +2,8 @@ package partisan_plugin.data.repositories
 
 import android.content.Context
 import android.util.Base64
-import partisan_plugin.domain.AppExitAction
-import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.entities.AppExitAction
+import partisan_plugin.domain.entities.AppStartAction
 
 object PreferencesRepository {
     private const val PREFERENCES = "Partisan-Preferences"

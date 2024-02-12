@@ -13,7 +13,7 @@ import network.loki.messenger.databinding.ActivityPartisanDatabaseBinding
 import org.thoughtcrime.securesms.onboarding.LinkDeviceActivity
 import org.thoughtcrime.securesms.util.push
 import partisan_plugin.data.repositories.PreferencesRepository
-import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.entities.AccountDataDomain
 import partisan_plugin.domain.usecases.accountsDatabase.AddUnencryptedAccountUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.DeleteAccountUseCase

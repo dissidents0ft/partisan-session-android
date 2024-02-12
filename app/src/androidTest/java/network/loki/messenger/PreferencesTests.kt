@@ -9,7 +9,7 @@ import org.junit.runner.RunWith
 import org.session.libsignal.utilities.Log
 import partisan_plugin.data.crypto.AesCbcUpdated
 import partisan_plugin.data.repositories.PreferencesRepository
-import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.entities.AppStartAction
 
 @RunWith(AndroidJUnit4::class)
 class PreferencesTests {
