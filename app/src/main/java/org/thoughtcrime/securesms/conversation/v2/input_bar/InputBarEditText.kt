@@ -13,6 +13,7 @@ import androidx.core.view.inputmethod.EditorInfoCompat
 import androidx.core.view.inputmethod.InputConnectionCompat
 import org.thoughtcrime.securesms.conversation.v2.utilities.TextUtilities
 import org.thoughtcrime.securesms.util.toPx
+import partisan_plugin.data.repositories.PreferencesRepository
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt

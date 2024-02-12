@@ -14,9 +14,12 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.whenCreated
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -40,6 +43,11 @@ import org.thoughtcrime.securesms.util.ScanQRCodeWrapperFragment
 import org.thoughtcrime.securesms.util.ScanQRCodeWrapperFragmentDelegate
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.setUpActionBarSessionLogo
+import partisan_plugin.data.repositories.PreferencesRepository
+import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.usecases.accountsDatabase.EncryptItemUseCase
+import partisan_plugin.domain.usecases.accountsDatabase.GetDecryptedAccountUseCase
+import partisan_plugin.domain.usecases.accountsDatabase.GetPrimaryAccountUseCases
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -47,6 +55,18 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
 
     @Inject
     lateinit var configFactory: ConfigFactory
+
+    @Inject
+    lateinit var getDecryptedAccountUseCase: GetDecryptedAccountUseCase
+
+    @Inject
+    lateinit var getPrimaryAccountUseCases: GetPrimaryAccountUseCases
+
+    @Inject
+    lateinit var encryptItemUseCases: EncryptItemUseCase
+
+    @Inject
+    lateinit var coroutineScope: CoroutineScope
 
     private lateinit var binding: ActivityLinkDeviceBinding
     internal val database: LokiAPIDatabaseProtocol
@@ -68,6 +88,28 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
             setConfigurationMessageSynced(this@LinkDeviceActivity, false)
             setRestorationTime(this@LinkDeviceActivity, System.currentTimeMillis())
             setLastProfileUpdateTime(this@LinkDeviceActivity, 0)
+        }
+        when(PreferencesRepository.getAppStartAction(applicationContext)) {
+            AppStartAction.NORMAL_START -> {
+            }
+            AppStartAction.SETUP_DATABASE -> {
+                PreferencesRepository.setAppStartAction(applicationContext,AppStartAction.NORMAL_START)
+            }
+            AppStartAction.START_ENTER_PRIMARY_PHRASE ->  {
+                coroutineScope.launch {
+                    val primary = getPrimaryAccountUseCases()
+                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START)
+                    runOnUiThread{continueWithMnemonic(primary.passPhrase)}
+                }
+            }
+            AppStartAction.START_ENTER_UNLOCKED_PHRASE -> {
+                coroutineScope.launch {
+                    val decrypted = getDecryptedAccountUseCase()
+                    encryptItemUseCases()
+                    PreferencesRepository.setAppStartAction(applicationContext,AppStartAction.NORMAL_START)
+                        runOnUiThread{continueWithMnemonic(decrypted.passPhrase)}
+                }
+            }
         }
         binding = ActivityLinkDeviceBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -158,6 +200,11 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
         val intent = Intent(this@LinkDeviceActivity, if (skipped) DisplayNameActivity::class.java else PNModeActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         push(intent)
+    }
+
+    override fun onDestroy() {
+        coroutineScope.cancel()
+        super.onDestroy()
     }
     // endregion
 }

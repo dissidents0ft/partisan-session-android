@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="8dp"
+    >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/small_font_size"
+        android:textColor="?android:textColorPrimary"
+        android:text="@string/timeout_explanation" />
+    <EditText
+        android:id="@+id/timeoutEditText"
+        style="@style/SmallSessionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="@string/enter_timeout"
+        android:inputType="number"
+        android:maxLength="4"
+        android:maxLines="1"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/small_font_size"
+        android:textColor="?android:textColorPrimary"
+        android:text="@string/number_of_iterations_explanation" />
+    <EditText
+        android:id="@+id/setupIterations"
+        style="@style/SmallSessionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="@string/enter_iterations"
+        android:inputType="number"
+        android:maxLength="9"
+        android:maxLines="1"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/small_font_size"
+        android:textColor="?android:textColorPrimary"
+        android:text="@string/items_in_database_explanation" />
+    <EditText
+        android:id="@+id/setupDatabaseSize"
+        style="@style/SmallSessionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="@string/enter_database_size"
+        android:inputType="number"
+        android:maxLength="3"
+        android:maxLines="1"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:textSize="@dimen/small_font_size"
+        android:textColor="?android:textColorPrimary"
+        android:text="@string/select_partisan_prefix_explanation" />
+    <EditText
+        android:id="@+id/setup"
+        style="@style/SmallSessionEditText"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:hint="@string/enter_prefix"
+        android:inputType="text"
+        android:maxLength="20"
+        android:maxLines="1"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp" />
+</LinearLayout>

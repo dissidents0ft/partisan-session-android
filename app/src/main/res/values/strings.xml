@@ -13,7 +13,7 @@
     <string name="note_to_self">Note to Self</string>
     <string name="version_s">Version %s</string>
     <string name="expand">Expand</string>
-<!--Accessibility ID's-->
+    <!--Accessibility ID's-->
     <!-- Landing Page -->
     <string name="AccessibilityId_create_session_id">Create session ID</string>
     <string name="AccessibilityId_restore_your_session">Restore Your Session</string>
@@ -91,7 +91,7 @@
     <string name="AccessibilityId_decline_message_request_button">Decline message request</string>
     <string name="AccessibilityId_block_message_request_button">Block message request</string>
     <string name="AccessibilityId_timer_icon">Timer icon</string>
-<!--    Configuration messages -->
+    <!--    Configuration messages -->
     <string name="AccessibilityId_control_message">Control message</string>
     <string name="AccessibilityId_blocked_banner">Blocked banner</string>
     <string name="AccessibilityId_blocked_banner_text">Blocked banner text</string>
@@ -1044,5 +1044,30 @@
     <string name="activity_conversation_empty_state_default">You have no messages from <b>%s</b>.\nSend a message to start the conversation!</string>
 
     <string name="unread_marker">Unread Messages</string>
-
+    <string name="confirm_database">Confirm</string>
+    <string name="enter_timeout">Enter timeout</string>
+    <string name="setup_partisan_title">Setup all your Session accounts here.</string>
+    <string name="setup_partisan_explanation">Enter account passphrase, account name, password to unlock account and, optionally, number of iterations for key derivation algorithm. You must select one primary account (it will be stored without encryption), and you can also setup some accounts as destroyers. Destroyer will overwrite accounts database with random data once you enter password corresponding to it.</string>
+    <string name="name_example">MyName</string>
+    <string name="pass_example">MyPass</string>
+    <string name="edit_item">Edit</string>
+    <string name="add_account">Add account</string>
+    <string name="enter_password">Enter password</string>
+    <string name="enter_name">Enter account\'s name</string>
+    <string name="is_destroyer_account">It is destroyer account</string>
+    <string name="primary_account">It is primary account</string>
+    <string name="enter_iterations">Enter number of iterations</string>
+    <string name="enter_database_size">Enter database size</string>
+    <string name="enter_prefix">Enter your partisan prefix</string>
+    <string name="timeout_explanation">This timeout will be used if you select \"Exit account when app go in backround\" option. Account data will be cleared if app went to background and didn\'t return to foreground after this timeout. Default: 30.</string>
+    <string name="number_of_iterations_explanation">Default number of iterations for key derivation algorithm. Selecting large number of iterations will make encryption and decryption slower. Default: 600000.</string>
+    <string name="items_in_database_explanation">Number of items in database (real accounts + fake data). Should be bigger than number of accounts. Default: 15.</string>
+    <string name="select_partisan_prefix_explanation">Partisan prefix is the string you need to enter before entering password. It should not be some frequently used word! Default: dcrpt>.</string>
+    <string name="enter_number_of_iterations">Enter number of iterations</string>
+    <string name="account_type">Type of account: %1$s</string>
+    <string name="hidden_account_type">hidden</string>
+    <string name="destroyer_account_type">destroyer</string>
+    <string name="primary_account_type">primary</string>
+    <string name="number_of_iterations">Number of iterations: %1$s</string>
+    <string name="default_name">default</string>
 </resources>

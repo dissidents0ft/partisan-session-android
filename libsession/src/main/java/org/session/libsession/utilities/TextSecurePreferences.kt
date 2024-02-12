@@ -291,7 +291,6 @@ interface TextSecurePreferences {
         const val OCEAN_LIGHT = "ocean.light"
 
         const val ALLOW_MESSAGE_REQUESTS = "libsession.ALLOW_MESSAGE_REQUESTS"
-
         @JvmStatic
         fun getLastConfigurationSyncTime(context: Context): Long {
             return getLongPreference(context, LAST_CONFIGURATION_SYNC_TIME, 0)
@@ -312,7 +311,6 @@ interface TextSecurePreferences {
             setBooleanPreference(context, CONFIGURATION_SYNCED, value)
             _events.tryEmit(CONFIGURATION_SYNCED)
         }
-
         @JvmStatic
         fun isPushEnabled(context: Context): Boolean {
             return getBooleanPreference(context, IS_PUSH_ENABLED, false)

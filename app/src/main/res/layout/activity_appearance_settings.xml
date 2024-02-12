@@ -172,12 +172,13 @@
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="wrap_content"/>
+
                     <RadioButton
                         android:id="@+id/theme_radio_ocean_light"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/small_spacing"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"/>
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_margin="@dimen/small_spacing" />
                 </LinearLayout>
 
             </LinearLayout>

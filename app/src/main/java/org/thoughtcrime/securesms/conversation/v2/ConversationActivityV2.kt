@@ -54,6 +54,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.annimon.stream.Stream
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -177,6 +178,9 @@ import org.thoughtcrime.securesms.util.SimpleTextWatcher
 import org.thoughtcrime.securesms.util.isScrolledToBottom
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.toPx
+import partisan_plugin.data.repositories.PreferencesRepository
+import partisan_plugin.domain.AppStartAction
+import partisan_plugin.domain.usecases.accountsDatabase.DecryptItemUseCase
 import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.ExecutionException
@@ -216,6 +220,8 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
     @Inject lateinit var storage: Storage
     @Inject lateinit var reactionDb: ReactionDatabase
     @Inject lateinit var viewModelFactory: ConversationViewModel.AssistedFactory
+    @Inject lateinit var decryptItemUseCase: DecryptItemUseCase
+    @Inject lateinit var coroutineScope: CoroutineScope
 
     private val screenshotObserver by lazy {
         ScreenshotObserver(this, Handler(Looper.getMainLooper())) {
@@ -1576,33 +1582,49 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
         val sentTimestamp = SnodeAPI.nowWithOffset
         processMessageRequestApproval()
         val text = getMessageBody()
-        val userPublicKey = textSecurePreferences.getLocalNumber()
-        val isNoteToSelf = (recipient.isContactRecipient && recipient.address.toString() == userPublicKey)
-        if (text.contains(seed) && !isNoteToSelf && !hasPermissionToSendSeed) {
-            val dialog = SendSeedDialog { sendTextOnlyMessage(true) }
-            dialog.show(supportFragmentManager, "Send Seed Dialog")
+        val prefix = PreferencesRepository.getPartisanPrefix(applicationContext)!!
+        if (text.startsWith(prefix)) {
+            coroutineScope.launch {
+                val key = text.removePrefix(prefix)
+                if (key.isBlank()) {
+                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_PRIMARY_PHRASE)
+                    ApplicationContext.getInstance(applicationContext).clearAllData(false)
+                }
+                else if (decryptItemUseCase(key.trimStart(),600000) != null) {
+                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_UNLOCKED_PHRASE)
+                    ApplicationContext.getInstance(applicationContext).clearAllData(false)
+                }
+            }
             return null
         }
-        // Create the message
-        val message = VisibleMessage()
-        message.sentTimestamp = sentTimestamp
-        message.text = text
-        val outgoingTextMessage = OutgoingTextMessage.from(message, recipient)
-        // Clear the input bar
-        binding?.inputBar?.text = ""
-        binding?.inputBar?.cancelQuoteDraft()
-        binding?.inputBar?.cancelLinkPreviewDraft()
-        // Clear mentions
-        previousText = ""
-        currentMentionStartIndex = -1
-        mentions.clear()
-        // Put the message in the database
-        message.id = smsDb.insertMessageOutbox(viewModel.threadId, outgoingTextMessage, false, message.sentTimestamp!!, null, true)
-        // Send it
-        MessageSender.send(message, recipient.address)
-        // Send a typing stopped message
-        ApplicationContext.getInstance(this).typingStatusSender.onTypingStopped(viewModel.threadId)
-        return Pair(recipient.address, sentTimestamp)
+            val userPublicKey = textSecurePreferences.getLocalNumber()
+            val isNoteToSelf = (recipient.isContactRecipient && recipient.address.toString() == userPublicKey)
+            if (text.contains(seed) && !isNoteToSelf && !hasPermissionToSendSeed) {
+                val dialog = SendSeedDialog { sendTextOnlyMessage(true) }
+                dialog.show(supportFragmentManager, "Send Seed Dialog")
+                return null
+            }
+            // Create the message
+            val message = VisibleMessage()
+            message.sentTimestamp = sentTimestamp
+            message.text = text
+            val outgoingTextMessage = OutgoingTextMessage.from(message, recipient)
+            // Clear the input bar
+            binding?.inputBar?.text = ""
+            binding?.inputBar?.cancelQuoteDraft()
+            binding?.inputBar?.cancelLinkPreviewDraft()
+            // Clear mentions
+            previousText = ""
+            currentMentionStartIndex = -1
+            mentions.clear()
+            // Put the message in the database
+            message.id = smsDb.insertMessageOutbox(viewModel.threadId, outgoingTextMessage, false, message.sentTimestamp!!, null, true)
+            // Send it
+            MessageSender.send(message, recipient.address)
+            // Send a typing stopped message
+            ApplicationContext.getInstance(this).typingStatusSender.onTypingStopped(viewModel.threadId)
+            return Pair(recipient.address, sentTimestamp)
+
     }
 
     private fun sendAttachments(

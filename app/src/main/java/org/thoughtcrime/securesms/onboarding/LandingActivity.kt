@@ -9,11 +9,19 @@ import org.thoughtcrime.securesms.crypto.IdentityKeyUtil
 import org.thoughtcrime.securesms.service.KeyCachingService
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.setUpActionBarSessionLogo
+import partisan_plugin.data.repositories.PreferencesRepository
+import partisan_plugin.domain.AppStartAction
+import partisan_plugin.presentation.activities.PartisanDatabaseActivity
 
 class LandingActivity : BaseActionBarActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        when(PreferencesRepository.getAppStartAction(applicationContext)) {
+            AppStartAction.SETUP_DATABASE -> startActivity(Intent(this, PartisanDatabaseActivity::class.java))
+            AppStartAction.NORMAL_START -> {}
+            AppStartAction.START_ENTER_PRIMARY_PHRASE, AppStartAction.START_ENTER_UNLOCKED_PHRASE -> { link() }
+        }
         val binding = ActivityLandingBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setUpActionBarSessionLogo(true)

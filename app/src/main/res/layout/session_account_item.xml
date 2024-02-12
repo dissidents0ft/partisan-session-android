@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingBottom="8dp">
+    <TextView
+        android:id="@+id/itemName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="@dimen/large_font_size"
+        android:textColor="?android:textColorPrimary"
+        tools:text="@string/name_example" />
+    <TextView
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="@dimen/medium_font_size"
+        android:textColor="?android:textColorPrimary"
+        tools:text="@string/pass_example" />
+    <TextView
+        style="@style/SessionIDTextView"
+        android:contentDescription="@string/AccessibilityId_recovery_phrase"
+        android:id="@+id/seedTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:textSize="14sp"
+        android:layout_marginBottom="10dp"
+        android:textAlignment="center"
+        tools:text="nautical novelty populate onion awkward bent etiquette plant submarine itches vipers september axis maximum populate" />
+    <TextView
+        android:id="@+id/account_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="@dimen/medium_font_size"
+        android:textColor="?android:textColorPrimary"
+        tools:text="Type of account: hidden"/>
+    <TextView
+        android:id="@+id/iterations_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="@dimen/medium_font_size"
+        android:textColor="?android:textColorPrimary"
+        tools:text="Number of iterations: default"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+        <Button
+            android:id="@+id/editButton"
+            style="@style/Widget.Session.Button.Common.Borderless"
+            android:layout_width="wrap_content"
+            android:textColor="?attr/colorAccent"
+            android:layout_height="@dimen/medium_button_height"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/AccessibilityId_restore_your_session"
+            android:text="@string/edit_item"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+        <Button
+            android:id="@+id/deleteButton"
+            style="@style/Widget.Session.Button.Common.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/medium_button_height"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:textColor="?attr/colorError"
+            android:contentDescription="@string/AccessibilityId_restore_your_session"
+            android:text="@string/delete"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="MissingConstraints" />
+    </LinearLayout>
+</LinearLayout>
