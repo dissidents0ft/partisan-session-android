@@ -9,44 +9,43 @@ import javax.inject.Inject
 class AccountMapper @Inject constructor() {
     fun mapDbToDt(accountDbModel: AccountDbModel) = AccountDataDomain (
             id = accountDbModel.id,
-            name = accountDbModel.name,
             passPhrase = accountDbModel.passPhrase,
             passWord = accountDbModel.passWord,
             primary = accountDbModel.primary,
             destroyer = accountDbModel.destroyer,
-            iterations = accountDbModel.iterations
+            memory = accountDbModel.pmm
     )
 
     fun mapDtToDb(accountDataDomain: AccountDataDomain) = AccountDbModel (
-            name = accountDataDomain.name,
             passPhrase = accountDataDomain.passPhrase,
             passWord = accountDataDomain.passWord,
             primary = accountDataDomain.primary,
             destroyer = accountDataDomain.destroyer,
-            iterations = accountDataDomain.iterations
+            pmm = accountDataDomain.memory
     )
 
     fun mapEncryptedDbToDt(encryptedAccountDbModel: EncryptedAccountDbModel) = EncryptedAccountDomain (
             id= encryptedAccountDbModel.id,
-            name = encryptedAccountDbModel.name,
             passPhrase = encryptedAccountDbModel.passPhrase,
             passWord = encryptedAccountDbModel.passWord,
             destroyer = encryptedAccountDbModel.destroyer,
             iv = encryptedAccountDbModel.iv,
+            salt = encryptedAccountDbModel.salt,
+            hash = encryptedAccountDbModel.hash,
             encrypted = encryptedAccountDbModel.encrypted,
             primary = encryptedAccountDbModel.primary,
-            iterations = encryptedAccountDbModel.iterations
+            memory = encryptedAccountDbModel.memory
     )
 
     fun mapEncryptedDtToDn(encryptedAccountDomain: EncryptedAccountDomain) = EncryptedAccountDbModel (
             id= encryptedAccountDomain.id,
-            name = encryptedAccountDomain.name,
             passPhrase = encryptedAccountDomain.passPhrase,
             passWord = encryptedAccountDomain.passWord,
             destroyer = encryptedAccountDomain.destroyer,
             iv = encryptedAccountDomain.iv,
+            salt = encryptedAccountDomain.salt,
+            hash = encryptedAccountDomain.hash,
             encrypted = encryptedAccountDomain.encrypted,
             primary = encryptedAccountDomain.primary
-
     )
 }

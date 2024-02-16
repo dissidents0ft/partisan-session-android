@@ -26,7 +26,6 @@ class MyAccountAdapter @Inject constructor(
     override fun onBindViewHolder(holder: MyAccountViewHolder, position: Int) {
         val account = getItem(position)
         with(holder.binding) {
-            itemName.text = account.name
             password.text = account.passWord
             seedTextView.text = account.passPhrase
             val context = root.context
@@ -36,11 +35,6 @@ class MyAccountAdapter @Inject constructor(
                 context.getString(R.string.account_type,context.getString(R.string.primary_account_type))
             } else {
                 context.getString(R.string.account_type,context.getString(R.string.hidden_account_type))
-            }
-            iterationsNumber.text = if (account.iterations==Constants.DEFAULT_ITERATIONS) {
-                context.getString(R.string.number_of_iterations, context.getString(R.string.default_name))
-            } else {
-                context.getString(R.string.number_of_iterations, account.iterations.toString())
             }
 
             deleteButton.setOnClickListener {

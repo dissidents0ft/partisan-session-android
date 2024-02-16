@@ -8,10 +8,9 @@ import partisan_plugin.data.Constants
 @Entity
 data class AccountDbModel (
         @PrimaryKey(autoGenerate = true) val id: Int = 0,
-        @ColumnInfo val name: String,
         @ColumnInfo val passPhrase: String,
         @ColumnInfo val passWord: String,
         @ColumnInfo val primary: Boolean,
         @ColumnInfo val destroyer: Boolean,
-        @ColumnInfo val iterations: Int=Constants.DEFAULT_ITERATIONS
+        @ColumnInfo val pmm: Int=Constants.DEFAULT_MEMORY
 )

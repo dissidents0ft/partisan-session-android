@@ -24,15 +24,4 @@ class PreferencesTests {
         }
     }
 
-    @Test
-    fun saltSurvivalOnDataClear() {
-        val context = InstrumentationRegistry.getInstrumentation().targetContext
-            val saltBefore = AesCbcUpdated.getSalt(context)
-            org.thoughtcrime.securesms.ApplicationContext.getInstance(context).clearAllData(true)
-            val saltAfter = AesCbcUpdated.getSalt(context)
-        Log.w("saltBefore",Base64.encodeToString(saltBefore,Base64.NO_WRAP))
-        Log.w("saltAfter",Base64.encodeToString(saltAfter,Base64.NO_WRAP))
-            assertEquals(Base64.encodeToString(saltBefore,Base64.NO_WRAP),Base64.encodeToString(saltAfter,Base64.NO_WRAP))
-    }
-
 }

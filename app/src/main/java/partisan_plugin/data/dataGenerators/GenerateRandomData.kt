@@ -8,11 +8,20 @@ import org.thoughtcrime.securesms.crypto.IdentityKeyUtil
 import org.thoughtcrime.securesms.crypto.KeyPairUtilities
 import org.thoughtcrime.securesms.crypto.MnemonicUtilities
 import partisan_plugin.data.Constants
+import java.security.SecureRandom
 import kotlin.random.Random
 
+/**
+ * Class for fake data generation.
+ **/
 object GenerateRandomData  {
     private const val NAME_MIN_LENGTH = 4
     private const val NAME_MAX_LENGTH = 20
+    /**
+     * Function for generating fake Session seed using built-in functions of Session
+     *  @param context Android context
+     *  @return seed - fake Session seed
+     **/
     fun generateRandomSeed(context: Context): String {
         val seed = KeyPairUtilities.generate().seed
         var hexEncodedSeed = Hex.toStringCondensed(seed)
@@ -25,6 +34,11 @@ object GenerateRandomData  {
         return MnemonicCodec(loadFileContents).encode(hexEncodedSeed, MnemonicCodec.Language.Configuration.english)
     }
 
+    /**
+     * Function for generating random string, used for test purposes only
+     *  @return random string
+     **/
+
     fun generateRandomName(): String =
         getRandomString(Random.nextInt(NAME_MIN_LENGTH, NAME_MAX_LENGTH))
 
@@ -36,12 +50,17 @@ object GenerateRandomData  {
                 .joinToString("")
     }
 
+    /**
+     * Function for generating random distinct numbers using java.security.SecureRandom(), used for generating positions for
+     *  @param size size of list of numbers to generate
+     *  @return list of random numbers. Each number in list is less than database size, size of list is selected by user.
+     **/
     fun generateRandomDistinctNumbers(size: Int): List<Int> {
         val result = mutableListOf<Int>()
         val indexes = (0 until Constants.DEFAULT_DATABASE_SIZE).toMutableList()
         var limit = Constants.DEFAULT_DATABASE_SIZE-1
         while (result.size<size) {
-            val element = Random.nextInt(0, limit+1)
+            val element = SecureRandom().nextInt(limit)
             result.add(indexes[element])
             val lastElement = indexes[limit]
             indexes[limit] = element

@@ -15,8 +15,8 @@ interface MyAccountDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertEncrypted(account: EncryptedAccountDbModel)
 
-    @Query("UPDATE AccountDbModel SET name=:name,passWord=:passWord,passPhrase=:passPhrase,`primary`=:primary,destroyer=:destroyer,iterations=:iterations WHERE id=:id")
-    suspend fun updateUnencrypted(id: Int,name: String,passWord: String, passPhrase: String,primary: Boolean,destroyer: Boolean,iterations: Int)
+    @Query("UPDATE AccountDbModel SET passWord=:passWord,passPhrase=:passPhrase,`primary`=:primary,destroyer=:destroyer,pmm=:iterations WHERE id=:id")
+    suspend fun updateUnencrypted(id: Int,passWord: String, passPhrase: String,primary: Boolean,destroyer: Boolean,iterations: Int)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertUnEncrypted(account: AccountDbModel)

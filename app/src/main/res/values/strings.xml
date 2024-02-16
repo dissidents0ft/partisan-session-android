@@ -1047,7 +1047,7 @@
     <string name="confirm_database">Confirm</string>
     <string name="enter_timeout">Enter timeout</string>
     <string name="setup_partisan_title">Setup all your Session accounts here.</string>
-    <string name="setup_partisan_explanation">Enter account passphrase, account name, password to unlock account and, optionally, number of iterations for key derivation algorithm. You must select one primary account (it will be stored without encryption), and you can also setup some accounts as destroyers. Destroyer will overwrite accounts database with random data once you enter password corresponding to it.</string>
+    <string name="setup_partisan_explanation">Enter account passphrase, account name, password to unlock account and, optionally, number of additional megabytes of memory cost for key derivation algorithm. You must select one primary account (it will be stored without encryption), and you can also setup some accounts as destroyers. Destroyer will overwrite accounts database with random data once you enter password corresponding to it.</string>
     <string name="name_example">MyName</string>
     <string name="pass_example">MyPass</string>
     <string name="edit_item">Edit</string>
@@ -1056,18 +1056,19 @@
     <string name="enter_name">Enter account\'s name</string>
     <string name="is_destroyer_account">It is destroyer account</string>
     <string name="primary_account">It is primary account</string>
-    <string name="enter_iterations">Enter number of iterations</string>
+    <string name="enter_pmm">Enter PMM</string>
     <string name="enter_database_size">Enter database size</string>
     <string name="enter_prefix">Enter your partisan prefix</string>
+    <string name="enter_salts">Enter your number of salts</string>
     <string name="timeout_explanation">This timeout will be used if you select \"Exit account when app go in backround\" option. Account data will be cleared if app went to background and didn\'t return to foreground after this timeout. Default: 30.</string>
-    <string name="number_of_iterations_explanation">Default number of iterations for key derivation algorithm. Selecting large number of iterations will make encryption and decryption slower. Default: 600000.</string>
-    <string name="items_in_database_explanation">Number of items in database (real accounts + fake data). Should be bigger than number of accounts. Default: 15.</string>
-    <string name="select_partisan_prefix_explanation">Partisan prefix is the string you need to enter before entering password. It should not be some frequently used word! Default: dcrpt>.</string>
-    <string name="enter_number_of_iterations">Enter number of iterations</string>
+    <string name="items_in_database_explanation">Number of fake data to generate. Default: %1$d. </string>
+    <string name="select_partisan_prefix_explanation">Partisan prefix is the string you need to enter before entering password. It should not be some frequently used word!</string>
     <string name="account_type">Type of account: %1$s</string>
     <string name="hidden_account_type">hidden</string>
     <string name="destroyer_account_type">destroyer</string>
     <string name="primary_account_type">primary</string>
-    <string name="number_of_iterations">Number of iterations: %1$s</string>
+    <string name="pmm_number">PMM: %1$s</string>
     <string name="default_name">default</string>
+    <string name="partisan_settings">Open partisan settings</string>
+    <string name="pim_explanation">"PMM (Personal Memory Multiplier) is a number of additional megabytes for cost of key derivation algorithm. Using different PMM for every account will increase security, but using too big PMM can make data decryption slower. You should remember this value to get access to your account! "</string>
 </resources>

@@ -342,7 +342,7 @@ dependencies {
     implementation "com.google.accompanist:accompanist-themeadapter-appcompat:0.33.1-alpha"
     implementation "com.google.accompanist:accompanist-pager-indicators:0.33.1-alpha"
     implementation "androidx.compose.runtime:runtime-livedata:1.5.2"
-
+    implementation "org.signal:argon2:13.1@aar"
     implementation 'androidx.compose.foundation:foundation-layout:1.5.2'
     implementation 'androidx.compose.material:material:1.5.2'
     implementation("androidx.room:room-runtime:$room_version")

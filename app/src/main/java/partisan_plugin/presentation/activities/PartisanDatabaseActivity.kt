@@ -18,9 +18,11 @@ import partisan_plugin.domain.entities.AccountDataDomain
 import partisan_plugin.domain.usecases.accountsDatabase.AddUnencryptedAccountUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.DeleteAccountUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.EncryptDatabaseUseCase
+import partisan_plugin.domain.usecases.accountsDatabase.GetNumberOfItemsUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.GetUnencryptedDataUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.UpdateUnencryptedAccountUseCase
 import partisan_plugin.presentation.adapters.MyAccountAdapter
+import partisan_plugin.presentation.dialogs.FinishSetupDialog
 import partisan_plugin.presentation.dialogs.SetupAccountDialog
 import javax.inject.Inject
 
@@ -48,6 +50,9 @@ class PartisanDatabaseActivity : AppCompatActivity() {
     @Inject
     lateinit var myAccountAdapter: MyAccountAdapter
 
+    @Inject
+    lateinit var getNumberOfItemsUseCase: GetNumberOfItemsUseCase
+
     lateinit var binding: ActivityPartisanDatabaseBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,11 +68,11 @@ class PartisanDatabaseActivity : AppCompatActivity() {
     private fun MyAccountAdapter.setRecyclerViewListeners() {
         onDeleteItemClickListener = { id -> coroutineScope.launch {  deleteAccountUseCase(id) } }
         onEditItemClickListener = {
-            SetupAccountDialog.show(supportFragmentManager,SetupAccountDialog.UPDATE,it.passWord,it.name,it.passPhrase,it.primary,it.destroyer,it.iterations)
+            SetupAccountDialog.show(supportFragmentManager,SetupAccountDialog.UPDATE,it.passWord,it.passPhrase,it.primary,it.destroyer,it.memory)
             SetupAccountDialog.setupListener(supportFragmentManager, this@PartisanDatabaseActivity, SetupAccountDialog.UPDATE) {
-                name, passPhrase, pass, iterations, isPrimary, isDestroyer ->
+                passPhrase, pass, iterations, isPrimary, isDestroyer ->
                 coroutineScope.launch {
-                    updateUnencryptedAccountUseCase(AccountDataDomain(it.id, name, passPhrase, pass, primary = isPrimary, destroyer = isDestroyer, iterations = iterations))
+                    updateUnencryptedAccountUseCase(AccountDataDomain(it.id, passPhrase, pass, primary = isPrimary, destroyer = isDestroyer, memory = iterations))
                 }
             }
         }
@@ -88,8 +93,11 @@ class PartisanDatabaseActivity : AppCompatActivity() {
 
     private fun setupFinish() {
         binding.finishButton.setOnClickListener {
-            finishSetup()
-        }
+                FinishSetupDialog.show(supportFragmentManager, FinishSetupDialog.SETUP)
+                FinishSetupDialog.setupListener(supportFragmentManager, this@PartisanDatabaseActivity, FinishSetupDialog.SETUP) { prefix ->
+                    finishSetup(prefix)
+                }
+            }
     }
 
     private fun setupFAB() {
@@ -97,15 +105,16 @@ class PartisanDatabaseActivity : AppCompatActivity() {
             SetupAccountDialog.show(supportFragmentManager, SetupAccountDialog.ADD)
             SetupAccountDialog.setupListener(supportFragmentManager, this,SetupAccountDialog.ADD) {
 
-                name, passPhrase, pass, iterations, isPrimary, isDestroyer ->
+                passPhrase, pass, iterations, isPrimary, isDestroyer ->
                 coroutineScope.launch {
-                    addUnencryptedAccountUseCase(name, passPhrase, pass, isPrimary, isDestroyer, iterations)
+                    addUnencryptedAccountUseCase(passPhrase, pass, isPrimary, isDestroyer, iterations)
                 }
             }
         }
     }
 
-    private fun finishSetup() {
+    private fun finishSetup(prefix: String) {
+        PreferencesRepository.setPartisanPrefix(applicationContext,prefix)
         val intent = Intent(this, LinkDeviceActivity::class.java)
         coroutineScope.launch {
             encryptDatabaseUseCase()

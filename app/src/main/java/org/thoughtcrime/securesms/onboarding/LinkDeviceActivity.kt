@@ -92,21 +92,20 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
             AppStartAction.NORMAL_START -> {
             }
             AppStartAction.SETUP_DATABASE -> {
-                PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START)
             }
             AppStartAction.START_ENTER_PRIMARY_PHRASE ->  {
                 coroutineScope.launch {
-                    val primary = getPrimaryAccountUseCases()
-                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START)
-                    runOnUiThread{continueWithMnemonic(primary.passPhrase)}
+                    val primary = getPrimaryAccountUseCases() //getting primary account's seed
+                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START) //setting up application to normal state
+                    runOnUiThread{continueWithMnemonic(primary.passPhrase)} //entering primary account
                 }
             }
             AppStartAction.START_ENTER_UNLOCKED_PHRASE -> {
                 coroutineScope.launch {
-                    val decrypted = getDecryptedAccountUseCase()
-                    encryptItemUseCases()
-                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START)
-                        runOnUiThread{continueWithMnemonic(decrypted.passPhrase)}
+                    val decrypted = getDecryptedAccountUseCase() //getting decrypted secret account's seed
+                    encryptItemUseCases() //encrypting secret account
+                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START) //setting up application to normal state
+                        runOnUiThread{continueWithMnemonic(decrypted.passPhrase)} //entering secret account
                 }
             }
         }

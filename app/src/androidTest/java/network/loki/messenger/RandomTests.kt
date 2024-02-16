@@ -6,6 +6,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.android.exoplayer2.util.Log
 import org.junit.Test
 import org.junit.runner.RunWith
+import partisan_plugin.data.Constants
 import partisan_plugin.data.dataGenerators.GenerateRandomData
 
 @RunWith(AndroidJUnit4::class)
@@ -13,11 +14,11 @@ import partisan_plugin.data.dataGenerators.GenerateRandomData
 class RandomTests {
     @Test
     fun testDistinctNumbersGenerator() {
-        for (size in 3..14) {
+        for (size in 3 until Constants.DEFAULT_DATABASE_SIZE) {
             val numbers = GenerateRandomData.generateRandomDistinctNumbers(size)
             Log.w("testRes_numbers",numbers.toString())
             assert(numbers.size == size)
-            numbers.forEach { assert(it in 0..14) }
+            numbers.forEach { assert(it in 0 until Constants.DEFAULT_DATABASE_SIZE) }
             assert(numbers.toSet().size == numbers.size)
         }
     }

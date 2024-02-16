@@ -2,6 +2,7 @@ package org.thoughtcrime.securesms.onboarding
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import network.loki.messenger.databinding.ActivityLandingBinding
 import org.session.libsession.utilities.TextSecurePreferences
 import org.thoughtcrime.securesms.BaseActionBarActivity
@@ -17,12 +18,17 @@ class LandingActivity : BaseActionBarActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        when(PreferencesRepository.getAppStartAction(applicationContext)) {
-            AppStartAction.SETUP_DATABASE -> startActivity(Intent(this, PartisanDatabaseActivity::class.java))
-            AppStartAction.NORMAL_START -> {}
-            AppStartAction.START_ENTER_PRIMARY_PHRASE, AppStartAction.START_ENTER_UNLOCKED_PHRASE -> { link() }
-        }
         val binding = ActivityLandingBinding.inflate(layoutInflater)
+        when(PreferencesRepository.getAppStartAction(applicationContext)) {
+            AppStartAction.SETUP_DATABASE -> {
+                with(binding) {
+                enterPartisan.visibility = View.VISIBLE
+                enterPartisan.setOnClickListener { startPartisan() }
+                }
+            } //if partisan settings were not initialized, makes button opening settings visible and clickable
+            AppStartAction.NORMAL_START -> {}  //loading Session normally
+            AppStartAction.START_ENTER_PRIMARY_PHRASE, AppStartAction.START_ENTER_UNLOCKED_PHRASE -> { link() } //entering link device activity if automatical authentication with given seed required
+        }
         setContentView(binding.root)
         setUpActionBarSessionLogo(true)
         with(binding) {
@@ -35,6 +41,10 @@ class LandingActivity : BaseActionBarActivity() {
         TextSecurePreferences.setPasswordDisabled(this, true)
         // AC: This is a temporary workaround to trick the old code that the screen is unlocked.
         KeyCachingService.setMasterSecret(applicationContext, Object())
+    }
+
+    private fun startPartisan() {
+        startActivity(Intent(this@LandingActivity, PartisanDatabaseActivity::class.java))
     }
 
     private fun register() {

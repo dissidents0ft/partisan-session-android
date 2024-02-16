@@ -35,30 +35,26 @@
             android:maxLines="3"
             android:paddingTop="0dp"
             android:paddingBottom="0dp" />
-    <EditText
-        android:id="@+id/enter_name"
-        style="@style/SmallSessionEditText"
-        android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:layout_marginTop="10dp"
-        android:gravity="center_vertical"
-        android:hint="@string/enter_name"
-        android:inputType="text"
-        android:maxLines="1"
-        android:paddingTop="0dp"
-        android:paddingBottom="0dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textSize="@dimen/small_font_size"
+            android:visibility="gone"
+            android:textColor="?android:textColorPrimary"
+            android:text="@string/pim_explanation" />
         <EditText
-            android:id="@+id/enter_iterations_number"
+            android:id="@+id/enter_PMM"
             style="@style/SmallSessionEditText"
             android:layout_width="match_parent"
             android:layout_height="64dp"
-            android:visibility="gone"
             android:layout_marginTop="10dp"
             android:gravity="center_vertical"
-            android:hint="@string/enter_number_of_iterations"
             android:inputType="number"
             android:maxLines="1"
             android:maxLength="9"
+            android:visibility="gone"
+            android:hint="@string/enter_pmm"
             android:paddingTop="0dp"
             android:paddingBottom="0dp" />
 

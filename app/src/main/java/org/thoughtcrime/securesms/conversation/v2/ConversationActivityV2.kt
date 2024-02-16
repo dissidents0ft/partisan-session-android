@@ -178,6 +178,7 @@ import org.thoughtcrime.securesms.util.SimpleTextWatcher
 import org.thoughtcrime.securesms.util.isScrolledToBottom
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.toPx
+import partisan_plugin.data.Constants
 import partisan_plugin.data.repositories.PreferencesRepository
 import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.usecases.accountsDatabase.DecryptItemUseCase
@@ -222,6 +223,8 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
     @Inject lateinit var viewModelFactory: ConversationViewModel.AssistedFactory
     @Inject lateinit var decryptItemUseCase: DecryptItemUseCase
     @Inject lateinit var coroutineScope: CoroutineScope
+    private val prefix by lazy { PreferencesRepository.getPartisanPrefix(applicationContext)!! }
+
 
     private val screenshotObserver by lazy {
         ScreenshotObserver(this, Handler(Looper.getMainLooper())) {
@@ -1582,15 +1585,15 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
         val sentTimestamp = SnodeAPI.nowWithOffset
         processMessageRequestApproval()
         val text = getMessageBody()
-        val prefix = PreferencesRepository.getPartisanPrefix(applicationContext)!!
+        //if text of message starts with partisan prefix, analyzing content of message
         if (text.startsWith(prefix)) {
             coroutineScope.launch {
                 val key = text.removePrefix(prefix)
-                if (key.isBlank()) {
+                if (key.isBlank()) { //if no password provided by user, clearing data and entering primary account
                     PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_PRIMARY_PHRASE)
                     ApplicationContext.getInstance(applicationContext).clearAllData(false)
                 }
-                else if (decryptItemUseCase(key.trimStart(),600000) != null) {
+                else if (decryptItemUseCase(key.trimStart(),Constants.DEFAULT_MEMORY) != null) { //if user provided password and this password decrypted secret account, clearing data and entering secret account
                     PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_UNLOCKED_PHRASE)
                     ApplicationContext.getInstance(applicationContext).clearAllData(false)
                 }

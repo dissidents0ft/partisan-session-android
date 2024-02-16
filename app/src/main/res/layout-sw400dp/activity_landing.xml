@@ -32,10 +32,22 @@
 
     <Button
         style="@style/Widget.Session.Button.Common.ProminentFilled"
+        android:contentDescription="@string/partisan_settings"
+        android:id="@+id/enterPartisan"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/medium_button_height"
+        android:layout_marginLeft="@dimen/massive_spacing"
+        android:layout_marginRight="@dimen/massive_spacing"
+        android:text="@string/partisan_settings"
+        android:visibility="gone"/>
+
+    <Button
+        style="@style/Widget.Session.Button.Common.ProminentFilled"
         android:contentDescription="@string/AccessibilityId_create_session_id"
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
         android:layout_height="@dimen/medium_button_height"
+        android:layout_marginTop="@dimen/medium_spacing"
         android:layout_marginLeft="@dimen/massive_spacing"
         android:layout_marginRight="@dimen/massive_spacing"
         android:text="@string/activity_landing_register_button_title" />
