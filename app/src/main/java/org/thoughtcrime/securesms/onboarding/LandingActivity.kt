@@ -3,6 +3,7 @@ package org.thoughtcrime.securesms.onboarding
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import dagger.hilt.android.AndroidEntryPoint
 import network.loki.messenger.databinding.ActivityLandingBinding
 import org.session.libsession.utilities.TextSecurePreferences
 import org.thoughtcrime.securesms.BaseActionBarActivity
@@ -13,13 +14,18 @@ import org.thoughtcrime.securesms.util.setUpActionBarSessionLogo
 import partisan_plugin.data.repositories.PreferencesRepository
 import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.presentation.activities.PartisanDatabaseActivity
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class LandingActivity : BaseActionBarActivity() {
+
+    @Inject
+    lateinit var preferencesRepository: PreferencesRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivityLandingBinding.inflate(layoutInflater)
-        when(PreferencesRepository.getAppStartAction(applicationContext)) {
+        when(preferencesRepository.getAppStartAction()) {
             AppStartAction.SETUP_DATABASE -> {
                 with(binding) {
                 enterPartisan.visibility = View.VISIBLE

@@ -38,6 +38,7 @@
         android:layout_height="@dimen/medium_button_height"
         android:layout_marginLeft="@dimen/massive_spacing"
         android:layout_marginRight="@dimen/massive_spacing"
+        android:layout_marginBottom="@dimen/small_spacing"
         android:text="@string/partisan_settings"
         android:visibility="gone"/>
 
@@ -46,8 +47,6 @@
         android:contentDescription="@string/AccessibilityId_create_session_id"
         android:id="@+id/registerButton"
         android:layout_width="match_parent"
-        android:layout_marginTop="@dimen/small_spacing"
-
         android:layout_height="@dimen/medium_button_height"
         android:layout_marginLeft="@dimen/massive_spacing"
         android:layout_marginRight="@dimen/massive_spacing"

@@ -25,7 +25,7 @@
             android:layout_marginTop="4dp"
             android:textSize="@dimen/small_font_size"
             android:textColor="?android:textColorPrimary"
-            android:text="@string/setup_partisan_explanation" />
+            android:text="@string/setup_partisan_explanation_actual" />
 
         <androidx.recyclerview.widget.RecyclerView
         android:layout_width="match_parent"

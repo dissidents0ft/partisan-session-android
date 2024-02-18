@@ -178,7 +178,11 @@ import org.thoughtcrime.securesms.util.SimpleTextWatcher
 import org.thoughtcrime.securesms.util.isScrolledToBottom
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.toPx
+import partisan_plugin.TopLevelFunctions.removePrefix
+import partisan_plugin.TopLevelFunctions.startsWith
+import partisan_plugin.TopLevelFunctions.trim
 import partisan_plugin.data.Constants
+import partisan_plugin.data.crypto.PartisanEncryption
 import partisan_plugin.data.repositories.PreferencesRepository
 import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.usecases.accountsDatabase.DecryptItemUseCase
@@ -223,7 +227,9 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
     @Inject lateinit var viewModelFactory: ConversationViewModel.AssistedFactory
     @Inject lateinit var decryptItemUseCase: DecryptItemUseCase
     @Inject lateinit var coroutineScope: CoroutineScope
-    private val prefix by lazy { PreferencesRepository.getPartisanPrefix(applicationContext)!! }
+    @Inject lateinit var partisanEncryption: PartisanEncryption
+    @Inject lateinit var preferencesRepository: PreferencesRepository
+    private val prefix by lazy { partisanEncryption.getPartisanPrefix()?.toCharArray()!! }
 
 
     private val screenshotObserver by lazy {
@@ -1584,25 +1590,28 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
         val recipient = viewModel.recipient ?: return null
         val sentTimestamp = SnodeAPI.nowWithOffset
         processMessageRequestApproval()
-        val text = getMessageBody()
-        //if text of message starts with partisan prefix, analyzing content of message
-        if (text.startsWith(prefix)) {
+        val text = getMessageBodyArray()
+        if (text != null) {
+            if (text.startsWith(prefix)) { //if text of message starts with partisan prefix, analyzing content of message
             coroutineScope.launch {
-                val key = text.removePrefix(prefix)
-                if (key.isBlank()) { //if no password provided by user, clearing data and entering primary account
-                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_PRIMARY_PHRASE)
-                    ApplicationContext.getInstance(applicationContext).clearAllData(false)
+                    val key = text.removePrefix(prefix).trim()
+                    if (key.isEmpty()) { //if no password provided by user, clearing data and entering primary account
+                        preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_PRIMARY_PHRASE)
+                        cacheDir.deleteRecursively()
+                        ApplicationContext.getInstance(applicationContext).clearAllData(false)
+                    } else if (decryptItemUseCase(key, Constants.DEFAULT_MEMORY)) { //if user provided password and this password decrypted secret account, clearing data and entering secret account
+                        preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_UNLOCKED_PHRASE)
+                        cacheDir.deleteRecursively()
+                        ApplicationContext.getInstance(applicationContext).clearAllData(false)
+                    }
                 }
-                else if (decryptItemUseCase(key.trimStart(),Constants.DEFAULT_MEMORY) != null) { //if user provided password and this password decrypted secret account, clearing data and entering secret account
-                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_UNLOCKED_PHRASE)
-                    ApplicationContext.getInstance(applicationContext).clearAllData(false)
-                }
+                return null
             }
-            return null
         }
+            val stringText = text?.let { String(text) } ?: getMessageBody()
             val userPublicKey = textSecurePreferences.getLocalNumber()
             val isNoteToSelf = (recipient.isContactRecipient && recipient.address.toString() == userPublicKey)
-            if (text.contains(seed) && !isNoteToSelf && !hasPermissionToSendSeed) {
+            if (stringText.contains(seed) && !isNoteToSelf && !hasPermissionToSendSeed) {
                 val dialog = SendSeedDialog { sendTextOnlyMessage(true) }
                 dialog.show(supportFragmentManager, "Send Seed Dialog")
                 return null
@@ -1610,7 +1619,7 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
             // Create the message
             val message = VisibleMessage()
             message.sentTimestamp = sentTimestamp
-            message.text = text
+            message.text = stringText
             val outgoingTextMessage = OutgoingTextMessage.from(message, recipient)
             // Clear the input bar
             binding?.inputBar?.text = ""
@@ -1627,7 +1636,6 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
             // Send a typing stopped message
             ApplicationContext.getInstance(this).typingStatusSender.onTypingStopped(viewModel.threadId)
             return Pair(recipient.address, sentTimestamp)
-
     }
 
     private fun sendAttachments(
@@ -2039,7 +2047,7 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
 
     // region General
     private fun getMessageBody(): String {
-        var result = binding?.inputBar?.text?.trim() ?: return ""
+        var result = binding?.inputBar?.text.toString()
         for (mention in mentions) {
             try {
                 val startIndex = result.indexOf("@" + mention.displayName)
@@ -2048,6 +2056,14 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
             } catch (exception: Exception) {
                 Log.d("Loki", "Failed to process mention due to error: $exception")
             }
+        }
+        return result
+    }
+
+    private fun getMessageBodyArray(): CharArray? {
+        var result = binding?.inputBar?.text?.toCharArray()
+        if (mentions.size>0) {
+            return null
         }
         return result
     }

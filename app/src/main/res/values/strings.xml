@@ -1047,7 +1047,8 @@
     <string name="confirm_database">Confirm</string>
     <string name="enter_timeout">Enter timeout</string>
     <string name="setup_partisan_title">Setup all your Session accounts here.</string>
-    <string name="setup_partisan_explanation">Enter account passphrase, account name, password to unlock account and, optionally, number of additional megabytes of memory cost for key derivation algorithm. You must select one primary account (it will be stored without encryption), and you can also setup some accounts as destroyers. Destroyer will overwrite accounts database with random data once you enter password corresponding to it.</string>
+    <string name="setup_partisan_explanation">Enter account passphrase, password to unlock account and, optionally, number of additional megabytes of memory cost for key derivation algorithm. You must select one primary account (it\'s data will be stored less safely than data of other accounts), and you can also setup some accounts as destroyers. Destroyer will overwrite accounts database with random data once you enter password corresponding to it.</string>
+    <string name="setup_partisan_explanation_actual">Enter account passphrase and password to unlock account. You must select one primary account (it\'s data will be stored less safely than data of other accounts, but you can access it instantly).</string>
     <string name="name_example">MyName</string>
     <string name="pass_example">MyPass</string>
     <string name="edit_item">Edit</string>

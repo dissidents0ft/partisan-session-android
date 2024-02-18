@@ -15,12 +15,12 @@ import kotlin.random.Random
  * Class for fake data generation.
  **/
 object GenerateRandomData  {
-    private const val NAME_MIN_LENGTH = 4
+    private const val NAME_MIN_LENGTH = 10
     private const val NAME_MAX_LENGTH = 20
     /**
      * Function for generating fake Session seed using built-in functions of Session
      *  @param context Android context
-     *  @return seed - fake Session seed
+     *  @return seed fake Session seed
      **/
     fun generateRandomSeed(context: Context): String {
         val seed = KeyPairUtilities.generate().seed
@@ -51,7 +51,7 @@ object GenerateRandomData  {
     }
 
     /**
-     * Function for generating random distinct numbers using java.security.SecureRandom(), used for generating positions for
+     * Function for generating random distinct numbers using java.security.SecureRandom(), used for generating ids for real accounts
      *  @param size size of list of numbers to generate
      *  @return list of random numbers. Each number in list is less than database size, size of list is selected by user.
      **/

@@ -42,11 +42,9 @@ import org.thoughtcrime.securesms.util.ScanQRCodeWrapperFragment
 import org.thoughtcrime.securesms.util.ScanQRCodeWrapperFragmentDelegate
 import org.thoughtcrime.securesms.util.push
 import org.thoughtcrime.securesms.util.setUpActionBarSessionLogo
+import partisan_plugin.data.crypto.PartisanEncryption
 import partisan_plugin.data.repositories.PreferencesRepository
 import partisan_plugin.domain.entities.AppStartAction
-import partisan_plugin.domain.usecases.accountsDatabase.EncryptItemUseCase
-import partisan_plugin.domain.usecases.accountsDatabase.GetDecryptedAccountUseCase
-import partisan_plugin.domain.usecases.accountsDatabase.GetPrimaryAccountUseCases
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -56,16 +54,13 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
     lateinit var configFactory: ConfigFactory
 
     @Inject
-    lateinit var getDecryptedAccountUseCase: GetDecryptedAccountUseCase
-
-    @Inject
-    lateinit var getPrimaryAccountUseCases: GetPrimaryAccountUseCases
-
-    @Inject
-    lateinit var encryptItemUseCases: EncryptItemUseCase
-
-    @Inject
     lateinit var coroutineScope: CoroutineScope
+
+    @Inject
+    lateinit var preferencesRepository: PreferencesRepository
+
+    @Inject
+    lateinit var encryption: PartisanEncryption
 
     private lateinit var binding: ActivityLinkDeviceBinding
     internal val database: LokiAPIDatabaseProtocol
@@ -88,24 +83,23 @@ class LinkDeviceActivity : BaseActionBarActivity(), ScanQRCodeWrapperFragmentDel
             setRestorationTime(this@LinkDeviceActivity, System.currentTimeMillis())
             setLastProfileUpdateTime(this@LinkDeviceActivity, 0)
         }
-        when(PreferencesRepository.getAppStartAction(applicationContext)) {
+        when(preferencesRepository.getAppStartAction()) {
             AppStartAction.NORMAL_START -> {
             }
             AppStartAction.SETUP_DATABASE -> {
             }
             AppStartAction.START_ENTER_PRIMARY_PHRASE ->  {
                 coroutineScope.launch {
-                    val primary = getPrimaryAccountUseCases() //getting primary account's seed
-                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START) //setting up application to normal state
-                    runOnUiThread{continueWithMnemonic(primary.passPhrase)} //entering primary account
+                    val passphrase = encryption.getPrimarySeed()!! //getting primary account's seed. It should be set up or app will crash!
+                    preferencesRepository.setAppStartAction(AppStartAction.NORMAL_START) //setting up application to normal state
+                    runOnUiThread{continueWithMnemonic(passphrase)} //entering primary account
                 }
             }
             AppStartAction.START_ENTER_UNLOCKED_PHRASE -> {
                 coroutineScope.launch {
-                    val decrypted = getDecryptedAccountUseCase() //getting decrypted secret account's seed
-                    encryptItemUseCases() //encrypting secret account
-                    PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.NORMAL_START) //setting up application to normal state
-                        runOnUiThread{continueWithMnemonic(decrypted.passPhrase)} //entering secret account
+                    val mnemonic = encryption.getEncryptedSeedAndClear()!! //getting secret account's seed and clearing it from encrypted preferences. It should be set up or app will crash!
+                    preferencesRepository.setAppStartAction(AppStartAction.NORMAL_START) //setting up application to normal state
+                        runOnUiThread{continueWithMnemonic(mnemonic)} //entering secret account
                 }
             }
         }

@@ -13,7 +13,7 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-abstract class ActivityRepositoriesModule {
+abstract class RepositoriesModule {
     @Binds
     @Singleton
     abstract fun bindAccountsRepository(accountsRepositoryImpl: AccountsRepositoryImpl): AccountsRepository
@@ -22,7 +22,7 @@ abstract class ActivityRepositoriesModule {
         @Provides
         @Singleton
         fun getCoroutineScope(): CoroutineScope {
-            return CoroutineScope(Dispatchers.Default)
+            return CoroutineScope(Dispatchers.IO)
         }
     }
 }

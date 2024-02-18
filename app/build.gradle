@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "com.android.tools.build:gradle:$gradlePluginVersion"
@@ -204,10 +205,8 @@ android {
 }
 
 dependencies {
-
     implementation("com.google.dagger:hilt-android:2.46.1")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
-
     implementation "androidx.appcompat:appcompat:$appcompatVersion"
     implementation 'androidx.recyclerview:recyclerview:1.2.1'
     implementation "com.google.android.material:material:$materialVersion"
@@ -349,6 +348,8 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     annotationProcessor("androidx.room:room-compiler:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
+    implementation "androidx.security:security-crypto:$crypto_version"
+    implementation "at.favre.lib:armadillo:$armadillo_version"
 }
 
 static def getLastCommitTimestamp() {

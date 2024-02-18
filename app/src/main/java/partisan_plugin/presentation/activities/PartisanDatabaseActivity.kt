@@ -12,6 +12,7 @@ import network.loki.messenger.R
 import network.loki.messenger.databinding.ActivityPartisanDatabaseBinding
 import org.thoughtcrime.securesms.onboarding.LinkDeviceActivity
 import org.thoughtcrime.securesms.util.push
+import partisan_plugin.data.crypto.PartisanEncryption
 import partisan_plugin.data.repositories.PreferencesRepository
 import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.entities.AccountDataDomain
@@ -52,6 +53,12 @@ class PartisanDatabaseActivity : AppCompatActivity() {
 
     @Inject
     lateinit var getNumberOfItemsUseCase: GetNumberOfItemsUseCase
+
+    @Inject
+    lateinit var partisanEncryption: PartisanEncryption
+
+    @Inject
+    lateinit var preferencesRepository: PreferencesRepository
 
     lateinit var binding: ActivityPartisanDatabaseBinding
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -114,11 +121,11 @@ class PartisanDatabaseActivity : AppCompatActivity() {
     }
 
     private fun finishSetup(prefix: String) {
-        PreferencesRepository.setPartisanPrefix(applicationContext,prefix)
         val intent = Intent(this, LinkDeviceActivity::class.java)
         coroutineScope.launch {
+            partisanEncryption.setPartisanPrefix(prefix)
             encryptDatabaseUseCase()
-            PreferencesRepository.setAppStartAction(applicationContext, AppStartAction.START_ENTER_PRIMARY_PHRASE)
+            preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_PRIMARY_PHRASE)
             push(intent)
         }
     }
