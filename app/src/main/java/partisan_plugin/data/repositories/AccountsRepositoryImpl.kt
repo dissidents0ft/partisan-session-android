@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import partisan_plugin.TopLevelFunctions.clear
 import partisan_plugin.data.Constants
 import partisan_plugin.data.crypto.PartisanEncryption
 import partisan_plugin.data.dataGenerators.GenerateRandomData
@@ -142,6 +143,7 @@ class AccountsRepositoryImpl @Inject constructor(@ApplicationContext private val
                     }.awaitAll()
             false
         } catch (e: CancellationException) {
+            pass.clear() //clearing unused password
             true
         }
     }

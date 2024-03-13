@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.edit
 import at.favre.lib.armadillo.Armadillo
 import dagger.hilt.android.qualifiers.ApplicationContext
+import partisan_plugin.TopLevelFunctions.clear
 import javax.inject.Inject
 
 /**
@@ -44,6 +45,7 @@ class PartisanEncryption @Inject constructor(@ApplicationContext private val con
         armadillo.edit {
             putString(SEED,seed)
         }
+        password.clear()
     }
 
     /**
