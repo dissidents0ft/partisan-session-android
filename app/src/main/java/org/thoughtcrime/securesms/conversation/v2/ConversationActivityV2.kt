@@ -225,11 +225,6 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
     @Inject lateinit var storage: Storage
     @Inject lateinit var reactionDb: ReactionDatabase
     @Inject lateinit var viewModelFactory: ConversationViewModel.AssistedFactory
-    @Inject lateinit var decryptItemUseCase: DecryptItemUseCase
-    @Inject lateinit var coroutineScope: CoroutineScope
-    @Inject lateinit var partisanEncryption: PartisanEncryption
-    @Inject lateinit var preferencesRepository: PreferencesRepository
-    private val prefix by lazy { partisanEncryption.getPartisanPrefix()?.toCharArray()!! }
 
 
     private val screenshotObserver by lazy {
@@ -1590,52 +1585,34 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
         val recipient = viewModel.recipient ?: return null
         val sentTimestamp = SnodeAPI.nowWithOffset
         processMessageRequestApproval()
-        val text = getMessageBodyArray()
-        if (text != null) {
-            if (text.startsWith(prefix)) { //if text of message starts with partisan prefix, analyzing content of message
-            coroutineScope.launch {
-                    val key = text.removePrefix(prefix).trim()
-                    if (key.isEmpty()) { //if no password provided by user, clearing data and entering primary account
-                        preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_PRIMARY_PHRASE)
-                        cacheDir.deleteRecursively()
-                        ApplicationContext.getInstance(applicationContext).clearAllData(false)
-                    } else if (decryptItemUseCase(key, Constants.DEFAULT_MEMORY)) { //if user provided password and this password decrypted secret account, clearing data and entering secret account
-                        preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_UNLOCKED_PHRASE)
-                        cacheDir.deleteRecursively()
-                        ApplicationContext.getInstance(applicationContext).clearAllData(false)
-                    }
-                }
-                return null
-            }
+        val text = getMessageBody()
+        val userPublicKey = textSecurePreferences.getLocalNumber()
+        val isNoteToSelf = (recipient.isContactRecipient && recipient.address.toString() == userPublicKey)
+        if (text.contains(seed) && !isNoteToSelf && !hasPermissionToSendSeed) {
+            val dialog = SendSeedDialog { sendTextOnlyMessage(true) }
+            dialog.show(supportFragmentManager, "Send Seed Dialog")
+            return null
         }
-            val stringText = text?.let { String(text) } ?: getMessageBody()
-            val userPublicKey = textSecurePreferences.getLocalNumber()
-            val isNoteToSelf = (recipient.isContactRecipient && recipient.address.toString() == userPublicKey)
-            if (stringText.contains(seed) && !isNoteToSelf && !hasPermissionToSendSeed) {
-                val dialog = SendSeedDialog { sendTextOnlyMessage(true) }
-                dialog.show(supportFragmentManager, "Send Seed Dialog")
-                return null
-            }
-            // Create the message
-            val message = VisibleMessage()
-            message.sentTimestamp = sentTimestamp
-            message.text = stringText
-            val outgoingTextMessage = OutgoingTextMessage.from(message, recipient)
-            // Clear the input bar
-            binding?.inputBar?.text = ""
-            binding?.inputBar?.cancelQuoteDraft()
-            binding?.inputBar?.cancelLinkPreviewDraft()
-            // Clear mentions
-            previousText = ""
-            currentMentionStartIndex = -1
-            mentions.clear()
-            // Put the message in the database
-            message.id = smsDb.insertMessageOutbox(viewModel.threadId, outgoingTextMessage, false, message.sentTimestamp!!, null, true)
-            // Send it
-            MessageSender.send(message, recipient.address)
-            // Send a typing stopped message
-            ApplicationContext.getInstance(this).typingStatusSender.onTypingStopped(viewModel.threadId)
-            return Pair(recipient.address, sentTimestamp)
+        // Create the message
+        val message = VisibleMessage()
+        message.sentTimestamp = sentTimestamp
+        message.text = text
+        val outgoingTextMessage = OutgoingTextMessage.from(message, recipient)
+        // Clear the input bar
+        binding?.inputBar?.text = ""
+        binding?.inputBar?.cancelQuoteDraft()
+        binding?.inputBar?.cancelLinkPreviewDraft()
+        // Clear mentions
+        previousText = ""
+        currentMentionStartIndex = -1
+        mentions.clear()
+        // Put the message in the database
+        message.id = smsDb.insertMessageOutbox(viewModel.threadId, outgoingTextMessage, false, message.sentTimestamp!!, null, true)
+        // Send it
+        MessageSender.send(message, recipient.address)
+        // Send a typing stopped message
+        ApplicationContext.getInstance(this).typingStatusSender.onTypingStopped(viewModel.threadId)
+        return Pair(recipient.address, sentTimestamp)
     }
 
     private fun sendAttachments(
@@ -2060,13 +2037,6 @@ class ConversationActivityV2 : PassphraseRequiredActionBarActivity(), InputBarDe
         return result
     }
 
-    private fun getMessageBodyArray(): CharArray? {
-        var result = binding?.inputBar?.text?.toCharArray()
-        if (mentions.size>0) {
-            return null
-        }
-        return result
-    }
     // endregion
 
     // region Search

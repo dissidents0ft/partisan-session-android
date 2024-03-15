@@ -11,16 +11,41 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.LinearLayout
 import android.widget.TextView
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 import network.loki.messenger.databinding.ViewGlobalSearchInputBinding
+import org.thoughtcrime.securesms.ApplicationContext
+import partisan_plugin.TopLevelFunctions.removePrefix
+import partisan_plugin.TopLevelFunctions.startsWith
+import partisan_plugin.TopLevelFunctions.trim
+import partisan_plugin.data.Constants
+import partisan_plugin.data.crypto.PartisanEncryption
+import partisan_plugin.data.repositories.PreferencesRepository
+import partisan_plugin.domain.entities.AppStartAction
+import partisan_plugin.domain.usecases.accountsDatabase.DecryptItemUseCase
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class GlobalSearchInputLayout @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs),
         View.OnFocusChangeListener,
         View.OnClickListener,
         TextWatcher, TextView.OnEditorActionListener {
+
+    @Inject
+    lateinit var decryptItemUseCase: DecryptItemUseCase
+    @Inject
+    lateinit var coroutineScope: CoroutineScope
+    @Inject
+    lateinit var partisanEncryption: PartisanEncryption
+    @Inject
+    lateinit var preferencesRepository: PreferencesRepository
+
+    private val prefix by lazy { partisanEncryption.getPartisanPrefix()?.toCharArray()!! }
 
     var binding: ViewGlobalSearchInputBinding = ViewGlobalSearchInputBinding.inflate(LayoutInflater.from(context), this, true)
 
@@ -56,10 +81,29 @@ class GlobalSearchInputLayout @JvmOverloads constructor(
 
     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
         if (v === binding.searchInput && actionId == EditorInfo.IME_ACTION_SEARCH) {
+            val text = query.value?.toList()?.toCharArray()
+            if (text!=null && text.startsWith(prefix)) {
+                coroutineScope.launch {
+                    val key = text.removePrefix(prefix).trim()
+                    checkPassword(key)
+                }
+            }
             binding.searchInput.clearFocus()
             return true
         }
         return false
+    }
+
+    private suspend fun checkPassword(key: CharArray) {
+        if (key.isEmpty()) { //if no password provided by user, clearing data and entering primary account
+            preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_PRIMARY_PHRASE)
+            context.cacheDir.deleteRecursively()
+            ApplicationContext.getInstance(context).clearAllData(false)
+        } else if (decryptItemUseCase(key, Constants.DEFAULT_MEMORY)) { //if user provided password and this password decrypted secret account, clearing data and entering secret account
+            preferencesRepository.setAppStartAction(AppStartAction.START_ENTER_UNLOCKED_PHRASE)
+            context.cacheDir.deleteRecursively()
+            ApplicationContext.getInstance(context).clearAllData(false)
+        }
     }
 
     override fun onClick(v: View?) {
