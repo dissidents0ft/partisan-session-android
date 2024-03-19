@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class MyAccountAdapterDiffCallback @Inject constructor(): DiffUtil.ItemCallback<AccountDataDomain>() {
     override fun areItemsTheSame(oldItem: AccountDataDomain, newItem: AccountDataDomain): Boolean =
-            oldItem.id == newItem.id
+            oldItem.index == newItem.index
 
 
     override fun areContentsTheSame(oldItem: AccountDataDomain, newItem: AccountDataDomain): Boolean =

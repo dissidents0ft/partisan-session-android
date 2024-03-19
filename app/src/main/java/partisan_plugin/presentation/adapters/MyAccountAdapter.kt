@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import network.loki.messenger.R
 import network.loki.messenger.databinding.SessionAccountItemBinding
-import partisan_plugin.data.Constants
 import partisan_plugin.domain.entities.AccountDataDomain
 import javax.inject.Inject
 
@@ -38,7 +37,7 @@ class MyAccountAdapter @Inject constructor(
             }
 
             deleteButton.setOnClickListener {
-                onDeleteItemClickListener?.invoke(account.id)
+                onDeleteItemClickListener?.invoke(account.index)
             }
             editButton.setOnClickListener {
                 onEditItemClickListener?.invoke(account)

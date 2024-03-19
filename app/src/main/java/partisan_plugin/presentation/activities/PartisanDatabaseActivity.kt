@@ -14,8 +14,8 @@ import org.thoughtcrime.securesms.onboarding.LinkDeviceActivity
 import org.thoughtcrime.securesms.util.push
 import partisan_plugin.data.crypto.PartisanEncryption
 import partisan_plugin.data.repositories.PreferencesRepository
-import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.entities.AccountDataDomain
+import partisan_plugin.domain.entities.AppStartAction
 import partisan_plugin.domain.usecases.accountsDatabase.AddUnencryptedAccountUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.DeleteAccountUseCase
 import partisan_plugin.domain.usecases.accountsDatabase.EncryptDatabaseUseCase
@@ -79,7 +79,7 @@ class PartisanDatabaseActivity : AppCompatActivity() {
             SetupAccountDialog.setupListener(supportFragmentManager, this@PartisanDatabaseActivity, SetupAccountDialog.UPDATE) {
                 passPhrase, pass, iterations, isPrimary, isDestroyer ->
                 coroutineScope.launch {
-                    updateUnencryptedAccountUseCase(AccountDataDomain(it.id, passPhrase, pass, primary = isPrimary, destroyer = isDestroyer, memory = iterations))
+                    updateUnencryptedAccountUseCase(AccountDataDomain(it.index, passPhrase, pass, primary = isPrimary, destroyer = isDestroyer, memory = iterations))
                 }
             }
         }
@@ -93,7 +93,9 @@ class PartisanDatabaseActivity : AppCompatActivity() {
         }
         coroutineScope.launch {
             getUnencryptedDataUseCase().collect{
-                myAccountAdapter.submitList(it)
+                runOnUiThread {
+                    myAccountAdapter.submitList(it)
+                }
             }
         }
     }
@@ -111,7 +113,6 @@ class PartisanDatabaseActivity : AppCompatActivity() {
         binding.floatingActionButton.setOnClickListener {
             SetupAccountDialog.show(supportFragmentManager, SetupAccountDialog.ADD)
             SetupAccountDialog.setupListener(supportFragmentManager, this,SetupAccountDialog.ADD) {
-
                 passPhrase, pass, iterations, isPrimary, isDestroyer ->
                 coroutineScope.launch {
                     addUnencryptedAccountUseCase(passPhrase, pass, isPrimary, isDestroyer, iterations)

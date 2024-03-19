@@ -5,18 +5,15 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import partisan_plugin.TopLevelFunctions.clear
 import partisan_plugin.data.Constants
+import partisan_plugin.data.ListWithIndexes
 import partisan_plugin.data.crypto.PartisanEncryption
 import partisan_plugin.data.dataGenerators.GenerateRandomData
-import partisan_plugin.data.db.AccountDbModel
-import partisan_plugin.data.db.AccountsDatabase
-import partisan_plugin.data.db.MyAccountDAO
-import partisan_plugin.data.mappers.AccountMapper
 import partisan_plugin.domain.entities.AccountDataDomain
 import partisan_plugin.domain.repositories.AccountsRepository
 import javax.inject.Inject
@@ -25,33 +22,36 @@ import javax.inject.Inject
  * Repository for tables with accounts
  */
 class AccountsRepositoryImpl @Inject constructor(@ApplicationContext private val context: Context,
-                             private val myAccountDao: MyAccountDAO,
-                             private val mapper: AccountMapper,
-                             private val partisanEncryption: PartisanEncryption): AccountsRepository {
+                                                 private val partisanEncryption: PartisanEncryption,
+                                                 private val accountsFlow: MutableStateFlow<List<AccountDataDomain>>,
+                                                 private val accountsList: ListWithIndexes<AccountDataDomain>): AccountsRepository {
     /**
      * Flow of unencrypted accounts
      */
-    override val accountsUnencrypted = myAccountDao.getAccountsUnencrypted().map { it.map { account -> mapper.mapDbToDt(account) } }
+    override val accountsUnencrypted = accountsFlow.asStateFlow()
 
     /**
      * Function for adding unencrypted account in table
      */
-    override suspend fun addUnencryptedAccount(passPhrase: String, passWord: String, primary: Boolean, destroyer: Boolean, iterations: Int) {
-        val account = AccountDbModel(passPhrase = passPhrase, passWord = passWord, primary = primary, destroyer = destroyer, pmm = iterations)
-        myAccountDao.upsertUnEncrypted(account)
+    override suspend fun addUnencryptedAccount(passPhrase: String, passWord: String, primary: Boolean, destroyer: Boolean, memory: Int) {
+        val account = AccountDataDomain(passPhrase = passPhrase, passWord = passWord, primary = primary, destroyer = destroyer, memory = memory)
+        accountsList.add(account)
+        accountsFlow.emit(accountsList.toList())
     }
 
     /**
      * Function for editing unencrypted account in table
      */
     override suspend fun updateUnencrypted(account: AccountDataDomain) {
-        myAccountDao.updateUnencrypted(account.id, account.passWord, account.passPhrase, account.primary, account.destroyer, account.memory)
+        val oldAccountIndex = accountsList.indexOfFirst { it.index == account.index }
+        accountsList[oldAccountIndex] = account
+        accountsFlow.emit(accountsList.toList())
     }
 
     /**
      * Function for getting number of accounts, added by user
      */
-    override suspend fun getSize(): Int = myAccountDao.getAccountsUnencrypted().first().size
+    override suspend fun getSize(): Int = accountsList.size
 
 
     /**
@@ -59,7 +59,9 @@ class AccountsRepositoryImpl @Inject constructor(@ApplicationContext private val
      * @param id id of account to delete
      */
     override suspend fun deleteAccount(id: Int) {
-        myAccountDao.deleteUnencrypted(id)
+        val oldAccountIndex = accountsList.indexOfFirst { it.index == id}
+        accountsList.removeAt(oldAccountIndex)
+        accountsFlow.emit(accountsList.toList())
     }
 
     /**
@@ -67,7 +69,7 @@ class AccountsRepositoryImpl @Inject constructor(@ApplicationContext private val
      * @param account unencrypted account
      * @param id new account id
      */
-    private suspend fun insertEncryptedAccount(account: AccountDbModel, id: Int) {
+    private suspend fun insertEncryptedAccount(account: AccountDataDomain, id: Int) {
         partisanEncryption.encryptRealData(id, account.passWord.toCharArray(), account.passPhrase)
     }
 
@@ -83,17 +85,16 @@ class AccountsRepositoryImpl @Inject constructor(@ApplicationContext private val
      * Function for database clearing after encryption
      */
     private suspend fun clearDatabase() {
-        myAccountDao.clearUnencrypted()
-        context.deleteDatabase(AccountsDatabase.DB_NAME)
+        accountsList.clear()
+        accountsFlow.emit(accountsList.toList())
     }
 
     /**
      * Function for encrypting data. Copies data from table with unencrypted accounts, clears database with unencrypted accounts, stores seeds of encrypted accounts and fake encrypted seeds.
      */
     override suspend fun encryptDatabase() {
-        val data = myAccountDao.getAccountsUnencrypted().first() //copying data from table with unencrypted accounts
-        val primarySeed = data.find { it.primary }?.passPhrase!! //finding primary account seed. There must be one primary account or app will crash!
-        val dataFiltered = data.filter { !it.primary } //filtering out primary account from data
+        val primarySeed = accountsList.find { it.primary }?.passPhrase!! //finding primary account seed. There must be one primary account or app will crash!
+        val dataFiltered = accountsList.filter { !it.primary } //filtering out primary account from data
         val size = dataFiltered.size
         val selectedNumbers = GenerateRandomData.generateRandomDistinctNumbers(size) //generating random positions in new table for all real accounts.
         var i = 0
